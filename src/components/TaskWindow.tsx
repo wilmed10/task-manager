@@ -23,7 +23,7 @@ export default function TaskWindow() {
                   className="cursor-pointer md:w-12"
                   onClick={() => dispatch({type: 'remove-task', payload:{id: task.id}})}
                 >
-                  <img src="../img/trash.png" alt="editar" />
+                  <img src="./img/trash.png" alt="editar" />
                 </button>
                 <div className="flex flex-col mx-3 w-2/3">
                   <h2 className="text-lg font-bold">{task.title}</h2>
@@ -43,7 +43,7 @@ export default function TaskWindow() {
                   className="bg-gray-400 p-1 md:p-3 rounded mx-auto w-full md:w-1/3"
                   onClick={() => handleEditTask(task)}
                 >
-                  <img className="place-self-center" src="../img/editar.png" alt="editar" />
+                  <img className="place-self-center" src="./img/editar.png" alt="editar" />
                 </button>
               </div>
           </div>
