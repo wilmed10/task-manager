@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useMemo, useState } from "react"
 import { useTask } from "../hooks/useTask"
 import { Task } from "../types"
 import { categories } from '../data/categories'
@@ -14,7 +14,7 @@ const initialState = {
 
 export default function TaskForm() {
 
-  const {dispatch} = useTask()
+  const {state, dispatch} = useTask()
   const [task, setTask] = useState<Task>(initialState)
 
   const handleChange = (e: ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
@@ -35,21 +35,27 @@ export default function TaskForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    dispatch({type: 'add-tasks', payload: {newTask: task} })
+    dispatch({type: 'add-task', payload: {newTask: task} })
 
     setTask({
       ...initialState,
       id: uuidv4()
     })
   }
+
+  useMemo(() => {
+    if(state.edit) {
+      setTask(state.taskEdited)
+    }
+  }, [state.edit])
   
   return (
     <form 
       className="bg-white p-8 rounded-lg shadow-md"
       onSubmit={handleSubmit}>
             <div className="mb-3">
-                <label htmlFor="title" className="text-md font-bold">
-                  Tarea
+                <label htmlFor="title" className="text-lg font-bold">
+                  Tarea:
                 </label>
                 <input
                   type="text"
@@ -61,8 +67,8 @@ export default function TaskForm() {
                 />
             </div>
             <div className="mb-3">
-                <label htmlFor="description" className="text-sm font-bold">
-                  Descripcion
+                <label htmlFor="description" className="text-lg font-bold">
+                  Descripcion:
                 </label>
                 <textarea
                   id="description"
@@ -71,26 +77,28 @@ export default function TaskForm() {
                   onChange={handleChange}
                 />
             </div>
-            <div>
-                <label htmlFor="status" className="text-sm font-bold">
-                  Estado
-                </label>
-                <select
-                    id="status"
-                    className="w-full p-3 border border-gray-300 rounded"
-                    value={ task.completed ? 1 : 0 }
-                    onChange={handleChange}
-                >
-                  {categories.map(category => (
-                    <option
-                      key={category.id}
-                      value={category.id}
-                    >
-                      {category.status}
-                    </option>
-                  ))}
-                </select>
-            </div>
+            {state.edit &&
+              <div>
+                  <label htmlFor="status" className="text-sm font-bold">
+                    Estado
+                  </label>
+                  <select
+                      id="status"
+                      className="w-full p-3 border border-gray-300 rounded"
+                      value={ task.completed ? 1 : 0 }
+                      onChange={handleChange}
+                  >
+                    {categories.map(category => (
+                      <option
+                        key={category.id}
+                        value={category.id}
+                      >
+                        {category.status}
+                      </option>
+                    ))}
+                  </select>
+              </div>
+            }
             <input 
               type="submit"
               className="w-full bg-cyan-600 text-white p-2 rounded mt-4 font-bold hover:bg-cyan-700 cursor-pointer"

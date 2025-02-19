@@ -4,20 +4,27 @@ import { Task } from '../types'
 // tipo de state
 export type tasksState = {
     tasks: Task[];
-    modal: boolean;
+    edit: boolean;
+    taskEdited: Task;
 }
 
 // tipo de acciones
 export type tasksActions = 
-    { type: 'add-tasks', payload: {newTask: Task} } |
-    { type: 'edit-tasks', payload: {id: Task['id']} } |
-    { type: 'remove-tasks', payload: {id: Task['id']} } |
+    { type: 'add-task', payload: {newTask: Task} } |
+    { type: 'edit-task', payload: {edit: Task}} |
+    { type: 'remove-task', payload: {id: Task['id']} } |
     { type: 'change-state', payload: {id: Task['id'], completed: boolean} } 
 
 // estado inicial
 export const initialState : tasksState = {
     tasks: [],
-    modal: false,
+    edit: false,
+    taskEdited: {
+        id: '',
+        title: '',
+        description: '',
+        completed: false
+    },
 }
 
 // reducer
@@ -26,22 +33,33 @@ export const taskReducer = (
     action: tasksActions
 ) => {
 
-    if (action.type === 'add-tasks') {
+    if (action.type === 'add-task') {
         return {
             ...state,
-            tasks: [...state.tasks, action.payload.newTask],
+            tasks: state.edit ? state.tasks.map( task => {
+                if(task.id === action.payload.newTask.id) {
+                    return {
+                        ...task,
+                        ...action.payload.newTask,
+                    }
+                }
+                return task;
+            } ) : [...state.tasks, action.payload.newTask],
+            edit: false,
+            taskEdited: initialState.taskEdited,
         }
     }
-    if (action.type === 'edit-tasks') {
+    if (action.type === 'edit-task') {
         return {
             ...state,
-            
+            edit: true,
+            taskEdited: action.payload.edit
         }
     }
-    if (action.type === 'remove-tasks') {
+    if (action.type === 'remove-task') {
         return {
             ...state,
-            tasks: state.tasks.filter( tasks => tasks.id !== action.payload.id )
+            tasks: state.tasks.filter( task => task.id !== action.payload.id )
         }
     }
     if (action.type === 'change-state') {
